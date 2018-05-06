@@ -44,7 +44,7 @@ extern void x16_simd_echo512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t 
 extern void x11_cubehash_shavite512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t *d_hash);
 extern void quark_blake512_cpu_hash_64_final(int thr_id, uint32_t threads, uint32_t *d_nonceVector, uint32_t *d_outputHash, uint32_t *resNonce, const uint64_t target);
 
-
+extern char *opt_bench_hash_order;
 static uint32_t *d_hash[MAX_GPUS];
 
 enum Algo {
@@ -306,10 +306,30 @@ extern "C" int scanhash_x16r(int thr_id, struct work* work, uint32_t max_nonce, 
 //		((uint32_t*)pdata)[2] = 0x76543210;
 //		((uint32_t*)pdata)[1] = 0x9A9A9A9A;
 //		((uint32_t*)pdata)[2] = 0x9A9A9A9A;
-//		((uint32_t*)pdata)[1] = 0xAAAAAAAA;
-//		((uint32_t*)pdata)[2] = 0xAAAAAAAA;
-		((uint32_t*)pdata)[1] = 0xCCCCCCCC;
-		((uint32_t*)pdata)[2] = 0xCCCCCCCC;
+    if (strlen(opt_bench_hash_order) != 16) {
+      applog(LOG_ERR, "hash order %s is not correct length for algo.", opt_bench_hash_order);
+      proper_exit(1);
+    }
+
+    uint8_t data[8] = { 0 };
+    for (int i = 0, j = 0; i < 8; ++i, j+=2) {
+      char elem = toupper(opt_bench_hash_order[j]);
+      char elem2 = toupper(opt_bench_hash_order[j+1]);
+
+      if (elem > 'F' || elem < '0' || elem2 > 'F' || elem2 < '0') {
+        applog(LOG_ERR, "hash order %s has an invalid character", opt_bench_hash_order);
+        proper_exit(1);
+      }
+
+      uint8_t first = elem >= 'A' ? elem - 'A' + 10 : elem - '0';
+      uint8_t second = elem2 >= 'A' ? elem2 - 'A' + 10 : elem2 - '0';
+      data[i] = (first << 4) | second;
+    }
+
+    ((uint32_t*)pdata)[1] = ((uint32_t*)data)[1];
+    ((uint32_t*)pdata)[2] = ((uint32_t*)data)[0];
+//		((uint32_t*)pdata)[1] = 0xCCCCCCCC;
+//		((uint32_t*)pdata)[2] = 0xCCCCCCCC;
 
 		//((uint8_t*)pdata)[8] = 0x90; // hashOrder[0] = '9'; for simd 80 + blake512 64
 		//((uint8_t*)pdata)[8] = 0xA0; // hashOrder[0] = 'A'; for echo 80 + blake512 64

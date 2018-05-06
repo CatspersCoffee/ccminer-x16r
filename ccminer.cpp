@@ -80,6 +80,7 @@ struct workio_cmd {
 	int pooln;
 };
 
+
 bool opt_debug = false;
 bool opt_debug_diff = false;
 bool opt_debug_threads = false;
@@ -219,6 +220,7 @@ int opt_statsavg = 30;
 #define API_MCAST_ADDR "224.0.0.75"
 
 // strdup on char* to allow a common free() if used
+char *opt_bench_hash_order = strdup("0123456789ABCDEF");
 static char* opt_syslog_pfx = strdup(PROGRAM_NAME);
 char *opt_api_bind = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
 int opt_api_port = 4068; /* 0 to disable */
@@ -368,6 +370,7 @@ Options:\n\
   -B, --background      run the miner in the background\n\
       --benchmark       run in offline benchmark mode\n\
       --cputest         debug hashes from cpu algorithms\n\
+      --hash-order      static hash order for benchmarking\n\
   -c, --config=FILE     load a JSON-format configuration file\n\
   -V, --version         display version information and exit\n\
   -h, --help            display this help text and exit\n\
@@ -399,6 +402,7 @@ struct option options[] = {
 	{ "cpu-priority", 1, NULL, 1021 },
 	{ "cuda-schedule", 1, NULL, 1025 },
 	{ "debug", 0, NULL, 'D' },
+    { "hash-order", 1, NULL, 1038 },
 	{ "help", 0, NULL, 'h' },
 	{ "intensity", 1, NULL, 'i' },
 	{ "ndevs", 0, NULL, 'n' },
@@ -628,6 +632,7 @@ void proper_exit(int reason)
 	free(opt_api_mcast_addr);
 	free(opt_api_mcast_code);
 	free(opt_api_mcast_des);
+    if (opt_bench_hash_order) free(opt_bench_hash_order);
 	//free(work_restart);
 	//free(thr_info);
 	exit(reason);
@@ -3116,6 +3121,10 @@ void parse_arg(int key, char *arg)
 			}
 		}
 		break;
+    case 1038:
+        if (opt_bench_hash_order) free(opt_bench_hash_order);
+        opt_bench_hash_order = strdup(arg);
+        break;
 	case 'b':
 		p = strstr(arg, ":");
 		if (p) {
@@ -3886,7 +3895,7 @@ int main(int argc, char *argv[])
 	// get opt_quiet early
 	parse_single_opt('q', argc, argv);
 
-	printf("*** suprminer " PACKAGE_VERSION " for nVidia GPUs by ocminer@github ***\n");
+	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by kiLLeen@github ***\n");
 	printf("*** optimized ccminer based on versions by tpruvot@github ***\n");
 
 	if (!opt_quiet) {
@@ -3899,7 +3908,6 @@ int main(int argc, char *argv[])
 			CUDART_VERSION/1000, (CUDART_VERSION % 1000)/10, arch);
 		printf("  Originally based on Christian Buchner and Christian H. project\n");
 		printf("  Include some work from sp,alexis78, djm34, djEzo, tsiv and krnlx.\n\n");
-		printf("			spmod-git \n\n");
 	}
 
 	rpc_user = strdup("");
