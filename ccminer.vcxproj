@@ -196,7 +196,6 @@
     </Link>
     <CudaCompile>
       <CInterleavedPTX>false</CInterleavedPTX>
-      <MaxRegCount>80</MaxRegCount>
       <PtxAsOptionV>true</PtxAsOptionV>
       <Keep>true</Keep>
       <CodeGeneration>compute_61,sm_61;compute_52,sm_52;compute_50,sm_50</CodeGeneration>

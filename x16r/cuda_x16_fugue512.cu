@@ -105,6 +105,43 @@ static const uint32_t mixtab0[] = {
 	0x4141dc1f, 0x9999e252, 0x2d2dc3b4, 0x0f0f2d3c, 0xb0b03df6, 0x5454b74b, 0xbbbb0cda, 0x16166258
 };
 
+#define S00 s[0]
+#define S01 s[1]
+#define S02 s[2]
+#define S03 s[3]
+#define S04 s[4]
+#define S05 s[5]
+#define S06 s[6]
+#define S07 s[7]
+#define S08 s[8]
+#define S09 s[9]
+#define S10 s[10]
+#define S11 s[11]
+#define S12 s[12]
+#define S13 s[13]
+#define S14 s[14]
+#define S15 s[15]
+#define S16 s[16]
+#define S17 s[17]
+#define S18 s[18]
+#define S19 s[19]
+#define S20 s[20]
+#define S21 s[21]
+#define S22 s[22]
+#define S23 s[23]
+#define S24 s[24]
+#define S25 s[25]
+#define S26 s[26]
+#define S27 s[27]
+#define S28 s[28]
+#define S29 s[29]
+#define S30 s[30]
+#define S31 s[31]
+#define S32 s[32]
+#define S33 s[33]
+#define S34 s[34]
+#define S35 s[35]
+
 #define TIX4(q, x00, x01, x04, x07, x08, x22, x24, x27, x30) { \
 	x22 ^= x00; \
 	x00 = (q); \
@@ -291,6 +328,7 @@ static const uint32_t mixtab0[] = {
 	SMIX(S24, S25, S26, S27); \
 	}
 
+static const uint32_t empty_uint32_array[] = { 0UL, 0UL, 0UL, 0UL };
 
 /*#undef ROL8
 #ifdef __CUDA_ARCH__
@@ -314,7 +352,6 @@ void x16_fugue512_setBlock_80(void *pdata)
 
 	uint32_t Data[20];
 	uint32_t S[35];
-	uint32_t B[9];
 
 	uint32_t mixtabs[1024];
 
@@ -333,13 +370,10 @@ void x16_fugue512_setBlock_80(void *pdata)
 		mixtabs[i + 768] = ROTL32(tmp,8);
 	}
 
-	uint32_t S00, S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11;
-	uint32_t S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, S23;
-	uint32_t S24, S25, S26, S27, S28, S29, S30, S31, S32, S33, S34, S35;
+  uint32_t s[36];
 	uint32_t B27, B28, B29, B30, B31, B32, B33, B34, B35;
 
-	S00 = S01 = S02 = S03 = S04 = S05 = S06 = S07 = S08 = S09 = 0;
-	S10 = S11 = S12 = S13 = S14 = S15 = S16 = S17 = S18 = S19 = 0;
+	AS_UINT4(&S00) = AS_UINT4(&S04) = AS_UINT4(&S08) = AS_UINT4(&S12) = AS_UINT4(&S16) = AS_UINT4(&empty_uint32_array);
 	S20 = 0x8807a57e; S21 = 0xe616af75; S22 = 0xc5d3e4db; S23 = 0xac9ab027;
 	S24 = 0xd915f117; S25 = 0xb6eecc54; S26 = 0x06e8020b; S27 = 0x4a92efd1;
 	S28 = 0xaac6e2c9; S29 = 0xddb21398; S30 = 0xcae65838; S31 = 0x437f203f;
@@ -370,7 +404,6 @@ void x16_fugue512_setBlock_80(void *pdata)
 /***************************************************/
 
 __global__
-__launch_bounds__(TPB, 4)
 void x16_fugue512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce, uint64_t *g_hash)
 {
 	__shared__ uint32_t mixtabs[1024];
@@ -404,15 +437,13 @@ void x16_fugue512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce,
 		//for(int i = 0; i < 10; i++)
 		//	AS_UINT2(&Data[i * 2]) = AS_UINT2(&c_data[i]);
 
+#pragma unroll 19
 		for (int i = 0; i < 19; i++)
 			Data[i] = c_data[i];
 
 		Data[19] = (startNonce + thread);
 
-		uint32_t S00, S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11;
-		uint32_t S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, S23;
-		uint32_t S24, S25, S26, S27, S28, S29, S30, S31, S32, S33, S34, S35;
-		//uint32_t B24, B25, B26,
+    uint32_t s[36];
 		uint32_t B27, B28, B29, B30, B31, B32, B33, B34, B35;
 
 		S00 = c_s[0]; S01 = c_s[1]; S02 = c_s[2]; S03 = c_s[3]; S04 = c_s[4]; S05 = c_s[5];
@@ -421,15 +452,6 @@ void x16_fugue512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce,
 		S18 = c_s[18]; S19 = c_s[19]; S20 = c_s[20]; S21 = c_s[21]; S22 = c_s[22]; S23 = c_s[23];
 		S24 = c_s[24]; S25 = c_s[25]; S26 = c_s[26]; S27 = c_s[27]; S28 = c_s[28]; S29 = c_s[29];
 		S30 = c_s[30]; S31 = c_s[31]; S32 = c_s[32]; S33 = c_s[33]; S34 = c_s[34]; S35 = c_s[35];
-
-
-		/*		FUGUE512_3((Data[ 0]), (Data[ 1]), (Data[ 2]));
-		FUGUE512_3((Data[ 3]), (Data[ 4]), (Data[ 5]));
-		FUGUE512_3((Data[ 6]), (Data[ 7]), (Data[ 8]));
-		FUGUE512_3((Data[ 9]), (Data[10]), (Data[11]));
-		FUGUE512_3((Data[12]), (Data[13]), (Data[14]));
-		FUGUE512_3((Data[15]), (Data[16]), (Data[17]));
-		*/
 
 		FUGUE512_F((Data[18]), (Data[19]), 0/*bchi*/, (80 * 8)/*bclo*/);
 
