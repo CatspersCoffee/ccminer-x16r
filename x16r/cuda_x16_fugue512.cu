@@ -328,9 +328,8 @@ static const uint32_t mixtab0[] = {
 	SMIX(S27, S28, S29, S30); \
 	CMIX36(S24, S25, S26, S28, S29, S30, S06, S07, S08); \
 	SMIX(S24, S25, S26, S27); }
-  
-static const uint32_t empty_uint32_array[] = { 0UL, 0UL, 0UL, 0UL };
 
+static const uint32_t empty_uint32_array[] = { 0UL, 0UL, 0UL, 0UL };
 
 __constant__ static __align__(16) uint32_t c_s[36];
 
@@ -339,7 +338,7 @@ void x16_fugue512_setBlock_80(void *pdata)
 {
 
 	uint32_t Data[20];
-  uint32_t s[36];
+	uint32_t s[36];
 	uint32_t B[9];
 
 	uint32_t mixtabs[1024];
@@ -375,8 +374,6 @@ void x16_fugue512_setBlock_80(void *pdata)
 	FUGUE512_3((Data[15]), (Data[16]), (Data[17]));
 	FUGUE512_F1((Data[18]));
 
-
-
 	cudaMemcpyToSymbol(c_s, s, sizeof(c_s), 0, cudaMemcpyHostToDevice);
 }
 
@@ -410,7 +407,7 @@ void x16_fugue512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce,
 	uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
 	if (thread < threads)
 	{
-    uint32_t s[36];
+		uint32_t s[36];
 		uint32_t B27, B28, B29, B30, B31, B32, B33, B34, B35;
 
 		S00 = c_s[0]; S01 = c_s[1]; S02 = c_s[2]; S03 = c_s[3]; S04 = c_s[4]; S05 = c_s[5];
