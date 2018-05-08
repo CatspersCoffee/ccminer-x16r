@@ -158,13 +158,13 @@
 #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "kiLLeen"
+#define PACKAGE_NAME "ccminer"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "http://github.com/kiLLeen/suprminer"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1"
+#define PACKAGE_VERSION "kiLLeen-1"
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be

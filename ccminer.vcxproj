@@ -203,6 +203,7 @@
       <Optimization>O3</Optimization>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--Wno-deprecated-gpu-targets %(AdditionalOptions)</AdditionalOptions>
+      <MaxRegCount>80</MaxRegCount>
     </CudaCompile>
     <CudaLink>
       <Optimization>O3</Optimization>
