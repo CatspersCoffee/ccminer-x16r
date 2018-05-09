@@ -107,14 +107,14 @@ void cuda_echo_round_80(const uint32_t sharedMemory[4][256], uint32_t *const __r
 	}
 
 	uint32_t Z[16];
-#pragma unroll
+#pragma unroll 16
 	for (int i = 0; i<16; i++) Z[i] = W[i];
-#pragma unroll
+#pragma unroll 29
 	for (int i = 32; i<61; i++) W[i] = h[i - 32];
-#pragma unroll
+#pragma unroll 3
 	for (int i = 61; i<64; i++) W[i] = 0;
 
-	//	#pragma unroll 2
+#pragma unroll 10
 	for (int i = 0; i < 10; i++)
 		echo_round(sharedMemory, W, k0);
 
@@ -123,15 +123,14 @@ void cuda_echo_round_80(const uint32_t sharedMemory[4][256], uint32_t *const __r
 		Z[i] ^= h[i] ^ W[i] ^ W[i + 32];
 	}
 
-#pragma unroll 8
-	for (int i = 0; i < 16; i += 2)
-		AS_UINT2(&hash[i]) = AS_UINT2(&Z[i]);
+#pragma unroll 4
+	for (int i = 0; i < 16; i += 4)
+		AS_UINT4(&hash[i]) = AS_UINT4(&Z[i]);
 }
 
 __host__
 void x16_echo512_cuda_init(int thr_id, const uint32_t threads)
 {
-	//	aes_cpu_init(thr_id);
 }
 
 __constant__ static uint32_t c_PaddedMessage80[20];
@@ -145,12 +144,9 @@ void x16_echo512_setBlock_80(void *endiandata)
 __global__ __launch_bounds__(128, 5) /* will force 72 registers */
 void x16_echo512_gpu_hash_80(uint32_t threads, uint32_t startNonce, uint64_t *g_hash)
 {
-	//__shared__ uint32_t sharedMemory[1024];
 	__shared__ uint32_t sharedMemory[4][256];
 
 	aes_gpu_init128(sharedMemory);
-	//	echo_gpu_init(sharedMemory);
-	//	__threadfence_block();
 
 	const uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
 	if (thread < threads)
