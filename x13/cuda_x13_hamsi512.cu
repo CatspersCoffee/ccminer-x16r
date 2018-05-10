@@ -555,6 +555,7 @@ void x16_hamsi512_setBlock_80(uint64_t *pdata)
 }
 
 __global__
+__launch_bounds__(384, 3)
 void x16_hamsi512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce, uint64_t *g_hash)
 {
 	uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
@@ -611,7 +612,7 @@ void x16_hamsi512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce,
 			}
 		}
 
-#pragma unroll 3
+#pragma unroll 6
 		for (int r = 0; r < 6; r++) {
 			ROUND_BIG(r, d_alpha_n);
 		}
@@ -642,7 +643,7 @@ void x16_hamsi512_gpu_hash_80(const uint32_t threads, const uint32_t startNonce,
 		}
 
 
-#pragma unroll 3
+#pragma unroll 6
 		for (int r = 0; r < 6; r++) {
 			ROUND_BIG(r, d_alpha_n);
 		}

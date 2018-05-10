@@ -9,6 +9,8 @@
 #include "cuda_helper_alexis.h"
 #include "cuda_vectors_alexis.h"
 
+#define TPB 512
+
 static __constant__ const uint32_t d_alpha_n[] = {
 	0xff00f0f0, 0xccccaaaa, 0xf0f0cccc, 0xff00aaaa, 0xccccaaaa, 0xf0f0ff00, 0xaaaacccc, 0xf0f0ff00,	0xf0f0cccc, 0xaaaaff00, 0xccccff00, 0xaaaaf0f0, 0xaaaaf0f0, 0xff00cccc, 0xccccf0f0, 0xff00aaaa,
 	0xccccaaaa, 0xff00f0f0, 0xff00aaaa, 0xf0f0cccc, 0xf0f0ff00, 0xccccaaaa, 0xf0f0ff00, 0xaaaacccc,	0xaaaaff00, 0xf0f0cccc, 0xaaaaf0f0, 0xccccff00, 0xff00cccc, 0xaaaaf0f0, 0xff00aaaa, 0xccccf0f0
@@ -175,6 +177,7 @@ static __constant__ const uint32_t d_T512[1024] = {
 	}
 
 __global__
+__launch_bounds__(TPB, 2)
 void x13_hamsi512_gpu_hash_64_alexis(uint32_t threads, uint32_t *g_hash){
 
 	const uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
@@ -280,7 +283,6 @@ void x13_hamsi512_gpu_hash_64_alexis(uint32_t threads, uint32_t *g_hash){
 		*(uint2x4*)&Hash[ 0] = *(uint2x4*)&h[ 0];
 		*(uint2x4*)&Hash[ 8] = *(uint2x4*)&h[ 8];
 
-		//#pragma unroll 16
 		for(int i = 0; i < 16; i++)
 			Hash[i] = cuda_swab32(Hash[i]);
 	}
@@ -289,7 +291,7 @@ void x13_hamsi512_gpu_hash_64_alexis(uint32_t threads, uint32_t *g_hash){
 __host__
 void x13_hamsi512_cpu_hash_64_alexis(int thr_id, uint32_t threads, uint32_t *d_hash)
 {
-	const uint32_t threadsperblock = 512;
+	const uint32_t threadsperblock = TPB;
 
 	dim3 grid((threads + threadsperblock-1)/threadsperblock);
 	dim3 block(threadsperblock);
