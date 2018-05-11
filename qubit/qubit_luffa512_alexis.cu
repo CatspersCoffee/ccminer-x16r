@@ -683,7 +683,7 @@ void qubit_luffa512_cpu_hash_80_alexis(int thr_id, uint32_t threads, uint32_t st
 //#endif
 
 __global__
-__launch_bounds__(384,2)
+__launch_bounds__(384, 2)
 void x11_luffa512_gpu_hash_64_alexis(uint32_t threads, uint32_t *g_hash){
 
 	const uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);

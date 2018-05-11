@@ -243,7 +243,7 @@ void x13_fugue512_gpu_hash_64_alexis(uint32_t threads, uint64_t *g_hash)
 		shared[2][threadIdx.x] = ROL16(tmp);
 		shared[3][threadIdx.x] = ROL8(tmp);
 //	}
-	__syncthreads();
+	//__syncthreads();
 	const uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
 	if (thread < threads)
 	{
@@ -269,7 +269,7 @@ void x13_fugue512_gpu_hash_64_alexis(uint32_t threads, uint64_t *g_hash)
 
 
 
-		__syncthreads();
+//		__syncthreads();
 		
 		S[ 0] = S[ 1] = S[ 2] = S[ 3] = S[ 4] = S[ 5] = S[ 6] = S[ 7] = S[ 8] = S[ 9] = S[10] = S[11] = S[12] = S[13] = S[14] = S[15] = S[16] = S[17] = S[18] = S[19] = 0;
 		*(uint2x4*)&S[20] = *(uint2x4*)&c_S[ 0];
