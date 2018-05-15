@@ -4,7 +4,7 @@
 #include "cuda_vectors_alexis.h"
 
 __device__
-void rrounds(uint32_t *x)
+inline void rrounds(uint32_t *x)
 {
 #pragma unroll 2
     for (int r = 0; r < 16; r++)
@@ -45,20 +45,20 @@ void rrounds(uint32_t *x)
 }
 
 __device__
-void ten_r_unroll(uint32_t *x) {
+inline void ten_r_unroll(uint32_t *x) {
 #pragma unroll 10
     for (int i = 0; i < 10; ++i)
         rrounds(x);
 }
 
 __device__
-void ten_r(uint32_t *x) {
+inline void ten_r(uint32_t *x) {
     for (int i = 0; i < 10; ++i)
         rrounds(x);
 }
 
 __device__
-void x11_cubehash512_gpu_hash_64_start(uint32_t *x, uint32_t *hash) {
+inline void x11_cubehash512_gpu_hash_64_start(uint32_t *x, uint32_t *hash) {
     // erste Hälfte des Hashes (32 bytes)
     //Update32(x, (const BitSequence*)Hash);
     *(uint2x4*)&x[0] ^= __ldg4((uint2x4*)&hash[0]);
@@ -80,7 +80,7 @@ void x11_cubehash512_gpu_hash_64_start(uint32_t *x, uint32_t *hash) {
 }
 
 __device__
-void x11_cubehash512_gpu_hash_64(uint32_t *hash) {
+inline void x11_cubehash512_gpu_hash_64(uint32_t *hash) {
     uint32_t x[32] = {
         0x2AEA2A61, 0x50F494D4, 0x2D538B8B, 0x4167D83E,
         0x3FEE2313, 0xC701CF8C, 0xCC39968E, 0x50AC5695,
@@ -100,7 +100,7 @@ void x11_cubehash512_gpu_hash_64(uint32_t *hash) {
 }
 
 __device__
-void x11_cubehash512_gpu_hash_64_unroll_10r(uint32_t *hash) {
+inline void x11_cubehash512_gpu_hash_64_unroll_10r(uint32_t *hash) {
     uint32_t x[32] = {
         0x2AEA2A61, 0x50F494D4, 0x2D538B8B, 0x4167D83E,
         0x3FEE2313, 0xC701CF8C, 0xCC39968E, 0x50AC5695,
