@@ -1,3 +1,5 @@
+#ifndef CUDA_X16RH
+#define CUDA_X16RH
 #include "x11/cuda_x11.h"
 
 extern void x11_echo512_cpu_hash_64_alexis(int thr_id, uint32_t threads, uint32_t *d_hash);
@@ -80,3 +82,4 @@ void x16_whirlpool512_hash_80(int thr_id, const uint32_t threads, const uint32_t
 void x16_sha512_setBlock_80(void *pdata);
 void x16_sha512_cuda_hash_80(int thr_id, const uint32_t threads, const uint32_t startNonce, uint32_t *d_hash);
 
+#endif
