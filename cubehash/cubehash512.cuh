@@ -1,5 +1,5 @@
-#ifndef CUBEHASHH
-#define CUBEHASHH
+#ifndef CUBEHASH512CUH
+#define CUBEHASH512CUH
 #include "cuda_helper_alexis.h"
 #include "cuda_vectors_alexis.h"
 
@@ -75,7 +75,7 @@ inline void x11_cubehash512_gpu_hash_64_start(uint32_t *x, uint32_t *hash) {
     x[0] ^= 0x80;
     rrounds(x);
 
-    //	Final(x, (BitSequence*)Hash);
+    //  Final(x, (BitSequence*)Hash);
     x[31] ^= 1;
 }
 
@@ -95,8 +95,8 @@ inline void x11_cubehash512_gpu_hash_64(uint32_t *hash) {
     x11_cubehash512_gpu_hash_64_start(x, hash);
     ten_r(x);
 
-		*(uint2x4*)&hash[ 0] = *(uint2x4*)&x[ 0];
-		*(uint2x4*)&hash[ 8] = *(uint2x4*)&x[ 8];
+    *(uint2x4*)&hash[ 0] = *(uint2x4*)&x[ 0];
+    *(uint2x4*)&hash[ 8] = *(uint2x4*)&x[ 8];
 }
 
 __device__
@@ -115,8 +115,8 @@ inline void x11_cubehash512_gpu_hash_64_unroll_10r(uint32_t *hash) {
     x11_cubehash512_gpu_hash_64_start(x, hash);
     ten_r_unroll(x);
 
-		*(uint2x4*)&hash[ 0] = *(uint2x4*)&x[ 0];
-		*(uint2x4*)&hash[ 8] = *(uint2x4*)&x[ 8];
+    *(uint2x4*)&hash[ 0] = *(uint2x4*)&x[ 0];
+    *(uint2x4*)&hash[ 8] = *(uint2x4*)&x[ 8];
 }
 
 #endif

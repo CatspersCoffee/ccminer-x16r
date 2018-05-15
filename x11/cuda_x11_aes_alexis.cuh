@@ -1,3 +1,5 @@
+#ifndef CUDAX11AESALEXISCUH
+#define CUDAX11AESALEXISCUH
 #include "miner.h"
 #include "cuda_vectors_alexis.h"
 
@@ -255,3 +257,4 @@ static void KEY_EXPAND_ELT(const uint32_t sharedMemory[4][256],uint32_t *k){
 	k[2] = y3;
 	k[3] = y0;
 }
+#endif

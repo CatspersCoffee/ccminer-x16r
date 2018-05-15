@@ -4,7 +4,7 @@
 
 #include "cuda_helper.h"
 #include "cuda_x11.h"
-#include "cubehash/cubehash.h"
+#include "cubehash/cubehash512.cuh"
 
 #define MULT0(a) {\
 	tmp = a[7]; \

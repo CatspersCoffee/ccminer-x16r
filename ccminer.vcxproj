@@ -404,7 +404,6 @@
     <ClInclude Include="quark\groestl_functions_quad.h" />
     <ClInclude Include="quark\cuda_quark.h" />
     <ClInclude Include="x11\cuda_x11.h" />
-    <ClInclude Include="cubehash\cubehash.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="cuda.cpp" />
@@ -611,6 +610,8 @@
     <CudaCompile Include="x17\cuda_x17_sha512.cu">
       <MaxRegCount>80</MaxRegCount>
     </CudaCompile>
+    <ClInclude Include="cubehash\cubehash512.cuh" />
+    <ClInclude Include="shavite\shavite512.cuh" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\ccminer.ico" />
