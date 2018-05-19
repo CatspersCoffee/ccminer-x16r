@@ -3895,7 +3895,7 @@ int main(int argc, char *argv[])
 	// get opt_quiet early
 	parse_single_opt('q', argc, argv);
 
-	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by kiLLeen@github ***\n");
+	printf("*** " PACKAGE_VERSION " for nVidia GPUs by kiLLeen@github ***\n");
 	printf("*** optimized ccminer based on versions by tpruvot@github ***\n");
 	printf("*** optimized ccminer-x16r compiled by nemosminer@github ***\n");
 
