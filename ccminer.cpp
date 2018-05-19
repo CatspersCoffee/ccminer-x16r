@@ -3897,6 +3897,7 @@ int main(int argc, char *argv[])
 
 	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by kiLLeen@github ***\n");
 	printf("*** optimized ccminer based on versions by tpruvot@github ***\n");
+	printf("*** optimized ccminer-x16r compiled by nemosminer@github ***\n");
 
 	if (!opt_quiet) {
 		const char* arch = is_x64() ? "64-bits" : "32-bits";
