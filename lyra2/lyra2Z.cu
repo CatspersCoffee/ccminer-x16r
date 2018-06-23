@@ -84,6 +84,8 @@ extern "C" int scanhash_lyra2Z(int thr_id, struct work* work, uint32_t max_nonce
 			lyra2Z_cpu_init_sm2(thr_id, throughput);
 
 		CUDA_SAFE_CALL(cudaMalloc(&d_hash[thr_id], (size_t)32 * throughput));
+		
+		sleep(2);
 
 		init[thr_id] = true;
 	}
