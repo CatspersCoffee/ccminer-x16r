@@ -15,14 +15,6 @@ typedef struct __align__(16) uint2x4 {
 } uint2x4;
 
 
-static __inline__ __device__ uint2x4 make_uint32_tx4(uint32_t s0, uint32_t s1, uint32_t s2, uint32_t s3,
-																												uint32_t s4, uint32_t s5, uint32_t s6, uint32_t s7) {
-	uint2x4 t;
-	t.x.x = s0; t.x.y = s1; t.y.x = s2; t.y.y = s3;
-	t.z.x = s4; t.z.y = s5; t.w.x = s6; t.w.y = s7;
-	return t;
-}
-
 static __inline__ __device__ uint2x4 make_uint2x4(uint2 s0, uint2 s1, uint2 s2, uint2 s3)
 {
 	uint2x4 t;

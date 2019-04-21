@@ -80,7 +80,6 @@ struct workio_cmd {
 	int pooln;
 };
 
-
 bool opt_debug = false;
 bool opt_debug_diff = false;
 bool opt_debug_threads = false;
@@ -220,7 +219,6 @@ int opt_statsavg = 10;
 #define API_MCAST_ADDR "224.0.0.75"
 
 // strdup on char* to allow a common free() if used
-char *opt_bench_hash_order = strdup("0123456789ABCDEF");
 static char* opt_syslog_pfx = strdup(PROGRAM_NAME);
 char *opt_api_bind = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
 int opt_api_port = 4068; /* 0 to disable */
@@ -238,68 +236,10 @@ static char const usage[] = "\
 Usage: " PROGRAM_NAME " [OPTIONS]\n\
 Options:\n\
   -a, --algo=ALGO       specify the hash algorithm to use\n\
-			bastion     Hefty bastion\n\
-			bitcore     Timetravel-10\n\
-			blake       Blake 256 (SFR)\n\
-			blake2s     Blake2-S 256 (NEVA)\n\
-			blakecoin   Fast Blake 256 (8 rounds)\n\
-			bmw         BMW 256\n\
-			cryptolight AEON cryptonight (MEM/2)\n\
-			cryptonight XMR cryptonight\n\
 			c11/flax    X11 variant\n\
-			decred      Decred Blake256\n\
-			deep        Deepcoin\n\
-			equihash    Zcash Equihash\n\
-			dmd-gr      Diamond-Groestl\n\
-			fresh       Freshcoin (shavite 80)\n\
-			fugue256    Fuguecoin\n\
-			groestl     Groestlcoin\n"
-#ifdef WITH_HEAVY_ALGO
-"			heavy       Heavycoin\n"
-#endif
-"			hmq1725     Doubloons / Espers\n\
-			jackpot     JHA v8\n\
-			keccak      Deprecated Keccak-256\n\
-			keccakc     Keccak-256 (CreativeCoin)\n\
-			lbry        LBRY Credits (Sha/Ripemd)\n\
-			luffa       Joincoin\n\
-			lyra2       CryptoCoin\n\
-			lyra2v2     VertCoin\n\
-			lyra2z      ZeroCoin (3rd impl)\n\
-			myr-gr      Myriad-Groestl\n\
-			neoscrypt   FeatherCoin, Phoenix, UFO...\n\
-			nist5       NIST5 (TalkCoin)\n\
-			penta       Pentablake hash (5x Blake 512)\n\
-			phi         BHCoin\n\
-			polytimos   Politimos\n\
-			quark       Quark\n\
-			qubit       Qubit\n\
-			sha256d     SHA256d (bitcoin)\n\
-			sha256t     SHA256 x3\n\
-			sia         SIA (Blake2B)\n\
-			sib         Sibcoin (X11+Streebog)\n\
-			scrypt      Scrypt\n\
-			scrypt-jane Scrypt-jane Chacha\n\
-			skein       Skein SHA2 (Skeincoin)\n\
-			skein2      Double Skein (Woodcoin)\n\
-			skunk       Skein Cube Fugue Streebog\n\
-			s3          S3 (1Coin)\n\
-			timetravel  Machinecoin permuted x8\n\
-			tribus      Denarius\n\
-			vanilla     Blake256-8 (VNL)\n\
-			veltor      Thorsriddle streebog\n\
-			whirlcoin   Old Whirlcoin (Whirlpool algo)\n\
-			whirlpool   Whirlpool algo\n\
-			x11evo      Permuted x11 (Revolver)\n\
-			x11         X11 (DarkCoin)\n\
-			x13         X13 (MaruCoin)\n\
-			x14         X14\n\
-			x15         X15\n\
 			x16r        X16R (Raven)\n\
 			x16s	    X16S (Pidgeon)\n\
-			x17         X17\n\
-			wildkeccak  Boolberry\n\
-			zr5         ZR5 (ZiftrCoin)\n\
+			x17			X17 (Verge)\n\
   -d, --devices         Comma separated list of CUDA devices to use.\n\
                         Device IDs start counting from 0! Alternatively takes\n\
                         string names of your cards like gtx780ti or gt640#2\n\
@@ -370,7 +310,6 @@ Options:\n\
   -B, --background      run the miner in the background\n\
       --benchmark       run in offline benchmark mode\n\
       --cputest         debug hashes from cpu algorithms\n\
-      --hash-order      static hash order for benchmarking\n\
   -c, --config=FILE     load a JSON-format configuration file\n\
   -V, --version         display version information and exit\n\
   -h, --help            display this help text and exit\n\
@@ -402,7 +341,6 @@ struct option options[] = {
 	{ "cpu-priority", 1, NULL, 1021 },
 	{ "cuda-schedule", 1, NULL, 1025 },
 	{ "debug", 0, NULL, 'D' },
-    { "hash-order", 1, NULL, 1038 },
 	{ "help", 0, NULL, 'h' },
 	{ "intensity", 1, NULL, 'i' },
 	{ "ndevs", 0, NULL, 'n' },
@@ -632,7 +570,6 @@ void proper_exit(int reason)
 	free(opt_api_mcast_addr);
 	free(opt_api_mcast_code);
 	free(opt_api_mcast_des);
-    if (opt_bench_hash_order) free(opt_bench_hash_order);
 	//free(work_restart);
 	//free(thr_info);
 	exit(reason);
@@ -860,10 +797,13 @@ int share_result(int result, int pooln, double sharediff, const char *reason)
 		sprintf(solved, " solved: %u", p->solved_count);
 	}
 
-	applog(LOG_NOTICE, "accepted: %lu/%lu (%s), %s %s%s",
-			p->accepted_count,
-			p->accepted_count + p->rejected_count,
-			suppl, s, flag, solved);
+	//applog(LOG_NOTICE, "accepted: %lu/%lu (%s), %s %s%s%s,%ums",
+	//		p->accepted_count,
+	//		p->accepted_count + p->rejected_count,
+	//		suppl, s, flag, solved, CL_SIL,stratum.answer_msec);
+
+	applog(LOG_NOTICE, "[B/A/T]: %lu/%lu/%lu, diff: %2.3f, %s %s%s,%ums", p->solved_count, p->accepted_count, p->accepted_count + p->rejected_count, sharediff, s, flag, CL_SIL, stratum.answer_msec);
+
 	if (reason) {
 		applog(LOG_WARNING, "reject reason: %s", reason);
 		if (!check_dups && strncasecmp(reason, "duplicate", 9) == 0) {
@@ -1902,13 +1842,15 @@ static void *miner_thread(void *userdata)
 			wcmplen = 4+32+32;
 		}
 
-		if (have_stratum) {
+		if (have_stratum) 
+		{
 			uint32_t sleeptime = 0;
 
 			if (opt_algo == ALGO_DECRED || opt_algo == ALGO_WILDKECCAK /* getjob */)
 				work_done = true; // force "regen" hash
-			while (!work_done && time(NULL) >= (g_work_time + opt_scantime)) {
-				usleep(100*1000);
+			while (!work_done && time(NULL) >= (g_work_time + opt_scantime)) 
+			{
+				usleep(1);
 				if (sleeptime > 4) {
 					extrajob = true;
 					break;
@@ -1916,7 +1858,8 @@ static void *miner_thread(void *userdata)
 				sleeptime++;
 			}
 			if (sleeptime && opt_debug && !opt_quiet)
-				applog(LOG_DEBUG, "sleeptime: %u ms", sleeptime*100);
+				applog(LOG_DEBUG, "sleeptime: %u ms", sleeptime);
+			
 			//nonceptr = (uint32_t*) (((char*)work.data) + wcmplen);
 			pthread_mutex_lock(&g_work_lock);
 			extrajob |= work_done;
@@ -1979,7 +1922,8 @@ static void *miner_thread(void *userdata)
 			wcmplen -= 4;
 		}
 
-		if (opt_algo == ALGO_CRYPTONIGHT || opt_algo == ALGO_CRYPTOLIGHT) {
+		if (opt_algo == ALGO_CRYPTONIGHT || opt_algo == ALGO_CRYPTOLIGHT) 
+		{
 			uint32_t oldpos = nonceptr[0];
 			bool nicehash = strstr(pools[cur_pooln].url, "nicehash") != NULL;
 			if (memcmp(&work.data[wcmpoft], &g_work.data[wcmpoft], wcmplen)) {
@@ -2076,8 +2020,9 @@ static void *miner_thread(void *userdata)
 		if (opt_algo == ALGO_SIA) nodata_check_oft = 7; // no stratum version
 		else if (opt_algo == ALGO_DECRED) nodata_check_oft = 4; // testnet ver is 0
 		else nodata_check_oft = 0;
-		if (have_stratum && work.data[nodata_check_oft] == 0 && !opt_benchmark) {
-			sleep(1);
+		if (have_stratum && work.data[nodata_check_oft] == 0 && !opt_benchmark) 
+		{
+			usleep(1);
 			if (!thr_id) pools[cur_pooln].wait_time += 1;
 			gpulog(LOG_DEBUG, thr_id, "no data");
 			continue;
@@ -2209,12 +2154,12 @@ static void *miner_thread(void *userdata)
 			}
 		}
 
-		max64 *= (uint32_t)thr_hashrates[thr_id];
+//		max64 *= (uint32_t)thr_hashrates[thr_id];
 
 		/* on start, max64 should not be 0,
 		 *    before hashrate is computed */
-		if (max64 < minmax) {
-			switch (opt_algo) {
+//		if (max64 < minmax) {
+/*			switch (opt_algo) {
 			case ALGO_BLAKECOIN:
 			case ALGO_BLAKE2S:
 			case ALGO_VANILLA:
@@ -2228,6 +2173,11 @@ static void *miner_thread(void *userdata)
 			//case ALGO_WHIRLPOOLX:
 				minmax = 0x40000000U;
 				break;
+			case ALGO_X16R:
+			case ALGO_X16S:
+				minmax = 0x40000000U;
+				break;
+
 			case ALGO_KECCAK:
 			case ALGO_KECCAKC:
 			case ALGO_LBRY:
@@ -2236,8 +2186,6 @@ static void *miner_thread(void *userdata)
 			case ALGO_SKEIN:
 			case ALGO_SKEIN2:
 			case ALGO_TRIBUS:
-			case ALGO_X16R:
-			case ALGO_X16S:
 				minmax = 0x1000000;
 				break;
 			case ALGO_C11:
@@ -2278,8 +2226,11 @@ static void *miner_thread(void *userdata)
 				minmax = 0x1000;
 				break;
 			}
-			max64 = max(minmax-1, max64);
-		}
+*/
+			minmax = 0xffffffffU / opt_n_threads;
+			max64 = max(minmax - 1, max64);
+//		}
+
 
 		// we can't scan more than uint32 capacity
 		max64 = min(UINT32_MAX, max64);
@@ -2290,17 +2241,21 @@ static void *miner_thread(void *userdata)
 		if (end_nonce >= UINT32_MAX - 256)
 			end_nonce = UINT32_MAX;
 
-		if ((max64 + start_nonce) >= end_nonce)
-			max_nonce = end_nonce;
-		else
-			max_nonce = (uint32_t) (max64 + start_nonce);
+		max_nonce = end_nonce;
+
+//		if ((max64 + start_nonce) >= end_nonce)
+//			max_nonce = end_nonce;
+//		else
+//			max_nonce = (uint32_t) (max64 + start_nonce);
 
 		// todo: keep it rounded to a multiple of 256 ?
 
-		if (unlikely(start_nonce > max_nonce)) {
+//		if (unlikely(start_nonce > max_nonce)) 
+//		{
 			// should not happen but seen in skein2 benchmark with 2 gpus
-			max_nonce = end_nonce = UINT32_MAX;
-		}
+//			max_nonce = end_nonce = UINT32_MAX;
+//		}
+
 
 		work.scanned_from = start_nonce;
 
@@ -2326,8 +2281,9 @@ static void *miner_thread(void *userdata)
 		work.valid_nonces = 0;
 
 		/* scan nonces for a proof-of-work hash */
-		switch (opt_algo) {
-
+		switch (opt_algo) 
+		{
+		/*
 		case ALGO_BASTION:
 			rc = scanhash_bastion(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -2343,10 +2299,11 @@ static void *miner_thread(void *userdata)
 		case ALGO_BMW:
 			rc = scanhash_bmw(thr_id, &work, max_nonce, &hashes_done);
 			break;
+*/
 		case ALGO_C11:
 			rc = scanhash_c11(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_CRYPTOLIGHT:
+/*		case ALGO_CRYPTOLIGHT:
 			rc = scanhash_cryptolight(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_CRYPTONIGHT:
@@ -2367,7 +2324,6 @@ static void *miner_thread(void *userdata)
 		case ALGO_FUGUE256:
 			rc = scanhash_fugue256(thr_id, &work, max_nonce, &hashes_done);
 			break;
-
 		case ALGO_GROESTL:
 		case ALGO_DMD_GR:
 			rc = scanhash_groestlcoin(thr_id, &work, max_nonce, &hashes_done);
@@ -2499,7 +2455,7 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_x11evo(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X11:
-			rc = scanhash_x11(thr_id, &work, max_nonce, &hashes_done);
+			rc = scanhash_x16r(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X13:
 			rc = scanhash_x13(thr_id, &work, max_nonce, &hashes_done);
@@ -2510,19 +2466,19 @@ static void *miner_thread(void *userdata)
 		case ALGO_X15:
 			rc = scanhash_x15(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_X16R:
-			rc = scanhash_x16r(thr_id, &work, max_nonce, &hashes_done);
+*/		case ALGO_X16R:
+		rc = scanhash_x16r(thr_id, &work, max_nonce, &hashes_done);
 			break;
-                case ALGO_X16S:
-                        rc = scanhash_x16s(thr_id, &work, max_nonce, &hashes_done);
+        case ALGO_X16S:
+            rc = scanhash_x16s(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X17:
 			rc = scanhash_x17(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_ZR5:
+/*		case ALGO_ZR5:
 			rc = scanhash_zr5(thr_id, &work, max_nonce, &hashes_done);
 			break;
-
+*/
 		default:
 			/* should never happen */
 			goto out;
@@ -2593,14 +2549,14 @@ static void *miner_thread(void *userdata)
 		}
 
 		if (rc > 0)
-			work.scanned_to = work.nonces[0];
+			work.scanned_to = start_nonce + hashes_done;
 		if (rc > 1)
-			work.scanned_to = max(work.nonces[0], work.nonces[1]);
+			work.scanned_to = start_nonce + hashes_done;
 		else {
 			work.scanned_to = max_nonce;
 			if (opt_debug && opt_benchmark) {
 				// to debug nonce ranges
-				gpulog(LOG_DEBUG, thr_id, "ends=%08x range=%08x", nonceptr[0], (nonceptr[0] - start_nonce));
+				gpulog(LOG_DEBUG, thr_id, "ends=%08x range=%08x", nonceptr[0], (work.scanned_to - start_nonce));
 			}
 			// prevent low scan ranges on next loop on fast algos (blake)
 			if (nonceptr[0] > UINT32_MAX - 64)
@@ -2611,7 +2567,7 @@ static void *miner_thread(void *userdata)
 		if (opt_debug && check_dups && opt_algo != ALGO_DECRED && opt_algo != ALGO_EQUIHASH && opt_algo != ALGO_SIA)
 			hashlog_remember_scan_range(&work);
 
-		if (!opt_quiet && loopcnt > 1 && (time(NULL) - tm_rate_log) > opt_maxlograte)
+		if (thr_id==0 && !opt_quiet && loopcnt > 1 && (time(NULL) - tm_rate_log) > opt_maxlograte)
 		{
 				format_hashrate(thr_hashrates[thr_id], s);
 				char output[4096];
@@ -2679,7 +2635,8 @@ static void *miner_thread(void *userdata)
 			}
 
 			// second nonce found, submit too (on pool only!)
-			if (rc > 1 && work.nonces[1]) {
+			if (rc > 1 && work.nonces[1]) 
+			{
 				work.submit_nonce_id = 1;
 				nonceptr[0] = work.nonces[1];
 				if (opt_algo == ALGO_ZR5) {
@@ -2691,6 +2648,7 @@ static void *miner_thread(void *userdata)
 				nonceptr[0] = curnonce;
 				work.nonces[1] = 0; // reset
 			}
+			nonceptr[0] = start_nonce+hashes_done;
 		}
 	}
 
@@ -3121,10 +3079,6 @@ void parse_arg(int key, char *arg)
 			}
 		}
 		break;
-    case 1038:
-        if (opt_bench_hash_order) free(opt_bench_hash_order);
-        opt_bench_hash_order = strdup(arg);
-        break;
 	case 'b':
 		p = strstr(arg, ":");
 		if (p) {
@@ -3895,9 +3849,8 @@ int main(int argc, char *argv[])
 	// get opt_quiet early
 	parse_single_opt('q', argc, argv);
 
-	printf("*** " PACKAGE_VERSION " for nVidia GPUs by kiLLeen@github ***\n");
+	printf("*** ccminer " PACKAGE_VERSION " for nVidia GPUs by nemosminer@github ***\n");
 	printf("*** optimized ccminer based on versions by tpruvot@github ***\n");
-	printf("*** optimized ccminer-x16r compiled by nemosminer@github ***\n");
 
 	if (!opt_quiet) {
 		const char* arch = is_x64() ? "64-bits" : "32-bits";
@@ -3908,7 +3861,8 @@ int main(int argc, char *argv[])
 #endif
 			CUDART_VERSION/1000, (CUDART_VERSION % 1000)/10, arch);
 		printf("  Originally based on Christian Buchner and Christian H. project\n");
-		printf("  Include some work from sp-hash, alexis78, djm34, djEzo, tsiv and krnlx.\n\n");
+		printf("  Include some work from spmod, tpruvot,alexis78, djm34, djEzo, tsiv and krnlx.\n\n");
+		printf("  compiled by nemosminer@github.com\n\n");
 	}
 
 	rpc_user = strdup("");

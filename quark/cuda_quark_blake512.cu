@@ -107,7 +107,8 @@ __constant__ const uint2 h[8] = {
 	v[b] = ROTR64( v[b] ^ v[c], 11); \
 }
 
-__global__ __launch_bounds__(128, 3)
+__global__
+__launch_bounds__(192, 2)
 void quark_blake512_gpu_hash_64(uint32_t threads, const uint32_t *const __restrict__ g_nonceVector, uint2* g_hash)
 {
 	const uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
@@ -586,10 +587,10 @@ void quark_blake512_gpu_hash_80(const uint32_t threads, const uint32_t startNoun
 //void quark_blake512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t *d_nonceVector, uint32_t *d_outputHash){
 __host__ void quark_blake512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t startNounce, uint32_t *d_nonceVector, uint32_t *d_hash, int order)
 {
-	uint32_t tpb = 128;
+	uint32_t tpb = TPB52_64;
 	int dev_id = device_map[thr_id];
 
-	//if (device_sm[dev_id] <= 500) tpb = TPB50_64;
+	if (device_sm[dev_id] <= 500) tpb = TPB50_64;
 	const dim3 grid((threads + tpb - 1) / tpb);
 	const dim3 block(tpb);
 	quark_blake512_gpu_hash_64 << <grid, block >> >(threads, d_nonceVector, (uint2*)d_hash);
